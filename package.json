@@ -4,7 +4,8 @@
   "description": "The guide for donejs-chat",
   "main": "run_guide.js",
   "scripts": {
-    "test": "guide run_guide.js --local"
+	"dev": "guide run_guide.js --local --browser chrome --skip-to 3",
+    "test": "guide run_guide.js --local --browser chrome"
   },
   "keywords": [
     "donejs"

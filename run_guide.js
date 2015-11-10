@@ -46,7 +46,7 @@ guide.step("Move to donejs-chat folder", function(){
  * @Step 4
  */
 guide.step("Start donejs develop", function(){
-	var child = this.canServe = guide.executeCommand("donejs", ["develop"]).childProcess;
+	var child = guide.canServe = guide.executeCommand("donejs", ["develop"]).childProcess;
 
 	var server = streamWhen(child.stdout, /can-serve starting on/);
 	var liveReload = streamWhen(child.stderr, /Live-reload server/);
@@ -55,11 +55,9 @@ guide.step("Start donejs develop", function(){
 	});
 });
 
-/*
 guide.test(function(){
 	return guide.nodeTest(__dirname + "/steps/3-donejs-develop/test.js");
 });
-*/
 
 guide.launchBrowser("http://localhost:8080");
 
@@ -136,6 +134,9 @@ guide.step("Install and use bit-tabs", function(){
 		.then(function(){
 			return guide.replaceFile("src/home.component",
 									 __dirname+"/steps/8-bit-tabs/home.component");
+		})
+		.then(function(){
+			return guide.wait(2000);
 		});
 });
 
@@ -172,8 +173,8 @@ guide.test(function(){
 	return guide.functionalTest(__dirname+"/steps/10-use-connection/test.js");
 });
 
-/** Step 11
- *
+/**
+ * @Step 11
  */
 guide.step("Create messages", function(){
 	return guide.replaceFile("src/messages/messages.stache",
@@ -188,18 +189,122 @@ guide.test(function(){
 	return guide.functionalTest(__dirname+"/steps/11-create-messages/test.js");
 });
 
+/**
+ * @Step 12
+ */
+guide.step("Enable a real-time connection", function(){
+	return guide.executeCommand("npm", ["install", "steal-socket.io", "--save"])
+		.then(function(){
+			return guide.wait(500);
+		})
+		.then(function(){
+			return guide.replaceFile("src/models/message.js",
+									 __dirname+"/steps/12-real-time/message.js");
+		});
 
-guide.skipTo(3);
+});
+
+/**
+ * @Step 13
+ */
+guide.closeBrowser();
+
+guide.step("Stop development mode", function(){
+	var canServe = guide.canServe;
+	canServe.kill("SIGTERM");
+	guide.canServe = undefined;
+	return guide.wait(2000);
+});
+
+/**
+ * @ Step 14
+ */
+
+guide.step("Production build", function(){
+	return guide.executeCommand("donejs", ["build"]);
+});
+
+/**
+ * @Step 15
+ */
+guide.step("Deploy to CDN", function(){
+	var appName = guide.options.app;
+	if(!appName) {
+		throw new Error("The --app must be provided to do CDN deployment");
+	}
+
+	var setConfig = function(pkg){
+		pkg.donejs.deploy.services.production.config.firebase = appName;
+		if(!pkg.system.envs) pkg.system.envs = {};
+		if(!pkg.system.envs["server-production"])
+			pkg.system.envs["server-production"] = {};
+		pkg.system.envs["server-production"].baseURL = "https://" +
+			appName + ".firebaseapp.com/";
+		return pkg;
+	};
+	return guide.replaceJson("package.json",
+							 __dirname+"/steps/15-cdn/deploy.json", setConfig)
+		.then(function(){
+			return guide.executeCommand("donejs", ["build"]);
+		})
+		.then(function(){
+			return guide.executeCommand("donejs", ["deploy"]);
+		});
+});
+
+/**
+ * @Step 16
+ */
+guide.step("Desktop and mobile apps: Cordova", function(){
+	return guide.executeCommand("npm", ["install", "-g", "ios-sim"])
+		.then(function(){
+			var proc = guide.answerPrompts("donejs", ["add", "cordova"]);
+			var answer = proc.answer;
+
+			answer(/Name of project/, "donejs chat\n");
+			answer(/ID of project/, "com.donejs.donejschat\n");
+			answer(/What platforms/, "\n");
+
+			return proc.promise;
+		})
+		.then(function(){
+			return guide.executeCommand("donejs", ["build", "cordova"]);
+		});
+});
+
+/**
+ * @Step 17
+ */
+guide.step("Desktop and mobile apps: NW.js", function(){
+	var proc = guide.answerPrompts("donejs", ["add", "nw"]);
+	var answer = proc.answer;
+
+	answer(/Main HTML file/, "\n");
+
+	return proc.promise
+		.then(function(){
+			return guide.executeCommand("donejs", ["build", "nw"]);
+		});
+});
+
+/**
+ *  Run the test
+ */
 
 guide.run().then(
 	function(){
 		console.log("All done!");
+		return 0;
 	},
 	function(err){
 		console.error("Oh no", err.message, err.stack, err);
+		return 1;
 	}
-);
-
-
-return;
-
+).then(function(exitCode){
+	if(guide.canServe) {
+		guide.canServe.kill();
+	}
+	return exitCode;
+}).then(function(exitCode){
+	process.exit(exitCode);
+});
