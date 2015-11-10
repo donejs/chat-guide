@@ -1,0 +1,19 @@
+{
+  "name": "donejs-chat-guide",
+  "version": "0.0.1",
+  "description": "The guide for donejs-chat",
+  "main": "run_guide.js",
+  "scripts": {
+    "test": "guide run_guide.js --local"
+  },
+  "keywords": [
+    "donejs"
+  ],
+  "author": "Bitovi",
+  "license": "MIT",
+  "dependencies": {
+    "guide-automation": "^0.0.1",
+    "node-fetch": "^1.3.3",
+    "stream-when": "^1.0.0"
+  }
+}
