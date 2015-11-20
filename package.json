@@ -18,8 +18,10 @@
   "author": "Bitovi",
   "license": "MIT",
   "dependencies": {
-    "guide-automation": "^0.0.2",
     "node-fetch": "^1.3.3",
     "stream-when": "^1.0.0"
+  },
+  "devDependencies": {
+    "guide-automation": "0.0.3"
   }
 }
