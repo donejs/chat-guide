@@ -227,11 +227,10 @@ guide.step("Production build", function(){
 /**
  * @Step 15
  */
-guide.step("Deploy to CDN", function(){
+guide.stepIf("Deploy to CDN", function() {
+	return !!guide.options.app;
+}, function(){
 	var appName = guide.options.app;
-	if(!appName) {
-		throw new Error("The --app must be provided to do CDN deployment");
-	}
 
 	var setConfig = function(pkg){
 		pkg.donejs.deploy.services.production.config.firebase = appName;
@@ -255,7 +254,9 @@ guide.step("Deploy to CDN", function(){
 /**
  * @Step 16
  */
-guide.step("Desktop and mobile apps: Cordova", function(){
+guide.stepIf("Desktop and mobile apps: Cordova", function() {
+	return process.platform === 'darwin';
+},function(){
 	return guide.executeCommand("npm", ["install", "-g", "ios-sim"])
 		.then(function(){
 			var proc = guide.answerPrompts("donejs", ["add", "cordova"]);

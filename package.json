@@ -22,6 +22,6 @@
     "stream-when": "^1.0.0"
   },
   "devDependencies": {
-    "guide-automation": "0.0.3"
+    "guide-automation": "0.1.0"
   }
 }
