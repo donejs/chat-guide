@@ -282,6 +282,9 @@ guide.step("Desktop and mobile apps: NW.js", function(){
 
 	answer(/Main HTML file/, "\n");
 	answer(/The nw.js version/, "0.12.3\n");
+	answer(/Width of/, "\n");
+	answer(/Height of/, "\n");
+	answer(/What platforms/, "\n");
 
 	return proc.promise
 		.then(function(){
