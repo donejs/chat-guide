@@ -2,6 +2,9 @@ var automate = require("guide-automation");
 var streamWhen = require("stream-when");
 
 var guide = automate({ spinner: true, log: true });
+var wait = function(){
+	return guide.wait(2000);
+};
 
 /**
  * @Step 1
@@ -50,9 +53,7 @@ guide.step("Start donejs develop", function(){
 
 	var server = streamWhen(child.stdout, /can-serve starting on/);
 	var liveReload = streamWhen(child.stderr, /Live-reload server/);
-	return Promise.all([server, liveReload]).then(function(){
-		return guide.wait(2000);
-	});
+	return Promise.all([server, liveReload]).then(wait);
 });
 
 guide.test(function(){
@@ -66,20 +67,16 @@ guide.launchBrowser("http://localhost:8080");
  */
 guide.step("Install bootstrap", function(){
 	return guide.executeCommand("npm", ["install", "bootstrap", "--save"])
-		.then(function(){
-			return guide.wait(500);
-		})
+		.then(wait)
 		.then(function(){
 			return guide.replaceFile("src/index.stache",
 									 __dirname +"/steps/4-bootstrap/index.stache");
 		})
-		.then(function(){
-			return guide.wait(5000);
-		});
+		.then(wait);
 });
 
 guide.test(function(){
-	return guide.functionalTest(__dirname +"/steps/4-bootstrap/test.js");
+	return guide.functionalTest(__dirname +"/steps/4-bootstrap/test.js").then(wait);
 });
 
 /**
@@ -90,7 +87,7 @@ guide.step("Generate custom elements", function(){
 		.then(function(){
 			return guide.executeCommand("donejs", ["add","component","messages",
 								  "chat-messages"]);
-		});
+		}).then(wait);
 });
 
 /**
@@ -110,7 +107,7 @@ guide.step("Navigate between pages", function(){
 		.then(function(){
 			return guide.replaceFile("src/index.stache",
 							   __dirname+"/steps/7-navigate/index.stache");
-		});
+		}).then(wait);
 });
 
 
@@ -128,21 +125,17 @@ guide.test(function(){
  */
 guide.step("Install and use bit-tabs", function(){
 	return guide.executeCommand("npm", ["install", "bit-tabs", "--save"])
-		.then(function(){
-			return guide.wait(500);
-		})
+		.then(wait)
 		.then(function(){
 			return guide.replaceFile("src/home.component",
 									 __dirname+"/steps/8-bit-tabs/home.component");
 		})
-		.then(function(){
-			return guide.wait(2000);
-		});
+		.then(wait);
 });
 
 guide.test(function(){
 	// Check that the tabs have appeared.
-	return guide.functionalTest(__dirname+"/steps/8-bit-tabs/tabs_test.js");
+	return guide.functionalTest(__dirname+"/steps/8-bit-tabs/tabs_test.js").then(wait);
 });
 
 /**
@@ -164,9 +157,7 @@ guide.step("Generate the Message model", function(){
 guide.step("Use the connection", function(){
 	return guide.replaceFile("src/messages/messages.stache",
 							 __dirname+"/steps/10-use-connection/messages.stache")
-		.then(function(){
-			return guide.wait(500);
-		});
+		.then(wait);
 });
 
 guide.test(function(){
@@ -182,7 +173,7 @@ guide.step("Create messages", function(){
 		.then(function(){
 			return guide.replaceFile("src/messages/messages.js",
 									 __dirname+"/steps/11-create-messages/messages.js");
-		});
+		}).then(wait);
 });
 
 guide.test(function(){
@@ -194,9 +185,7 @@ guide.test(function(){
  */
 guide.step("Enable a real-time connection", function(){
 	return guide.executeCommand("npm", ["install", "steal-socket.io", "--save"])
-		.then(function(){
-			return guide.wait(500);
-		})
+		.then(wait)
 		.then(function(){
 			return guide.replaceFile("src/models/message.js",
 									 __dirname+"/steps/12-real-time/message.js");
