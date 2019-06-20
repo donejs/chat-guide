@@ -1,5 +1,7 @@
 # donejs-chat-guide
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/donejs/chat-guide.svg)](https://greenkeeper.io/)
+
 This repo contains the source files for the [DoneJS](http://donejs.com) [chat guide](http://donejs.com/Guide.html).
 
 ## Testing
